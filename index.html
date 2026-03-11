@@ -794,31 +794,32 @@ footer {
       <div class="form-box">
         <div id="contact-form">
           <div class="form-box-title">Demande de contact</div>
+          <form id="formspree-form" action="https://formspree.io/f/mdawgegl" method="POST">
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Nom complet <span>*</span></label>
-              <input type="text" class="form-input" placeholder="Jean Dupont" id="f-name"/>
+              <input type="text" class="form-input" placeholder="Jean Dupont" id="f-name" name="Nom complet" required/>
             </div>
             <div class="form-group">
               <label class="form-label">Fonction <span>*</span></label>
-              <input type="text" class="form-input" placeholder="DSI, Directeur de production..." id="f-role"/>
+              <input type="text" class="form-input" placeholder="DSI, Directeur de production..." id="f-role" name="Fonction" required/>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Organisation <span>*</span></label>
-            <input type="text" class="form-input" placeholder="Nom de votre organisation" id="f-org"/>
+            <input type="text" class="form-input" placeholder="Nom de votre organisation" id="f-org" name="Organisation" required/>
           </div>
           <div class="form-group">
             <label class="form-label">Email professionnel <span>*</span></label>
-            <input type="email" class="form-input" placeholder="j.dupont&#64;organisation.fr" id="f-email"/>
+            <input type="email" class="form-input" placeholder="j.dupont&#64;organisation.fr" id="f-email" name="Email" required/>
           </div>
           <div class="form-group">
             <label class="form-label">Téléphone</label>
-            <input type="tel" class="form-input" placeholder="+33 6 XX XX XX XX" id="f-phone"/>
+            <input type="tel" class="form-input" placeholder="+33 6 XX XX XX XX" id="f-phone" name="Téléphone"/>
           </div>
           <div class="form-group">
             <label class="form-label">Contexte principal</label>
-            <select class="form-select" id="f-context">
+            <select class="form-select" id="f-context" name="Contexte">
               <option value="" disabled selected>— Sélectionner —</option>
               <option>Trop d'incidents récurrents en production</option>
               <option>Dépendance à des experts clés</option>
@@ -831,9 +832,10 @@ footer {
           </div>
           <div class="form-group">
             <label class="form-label">Message</label>
-            <textarea class="form-textarea" placeholder="Décrivez brièvement votre situation..." id="f-message"></textarea>
+            <textarea class="form-textarea" placeholder="Décrivez brièvement votre situation" id="f-message" name="Message"></textarea>
           </div>
-          <button class="form-submit" onclick="submitForm()">Envoyer ma demande →</button>
+          <button type="submit" class="form-submit">Envoyer ma demande →</button>
+          </form>
           <p class="form-note">Sans engagement · Réponse sous 24h · romainbrubach&#64;socratech.fr</p>
         </div>
         <div class="form-success" id="form-success">
@@ -887,22 +889,34 @@ footer {
   <div class="footer-copy">© 2026 Socratech · RUN Risk Diagnostic · Tous droits réservés</div>
 </footer>
 
+
 <script>
-function submitForm() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  const org = document.getElementById('f-org').value.trim();
-  const role = document.getElementById('f-role').value.trim();
-  if (!name || !email || !org || !role) {
-    alert('Merci de remplir les champs obligatoires.');
-    return;
+document.getElementById('formspree-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  try {
+    const response = await fetch('https://formspree.io/f/mdawgegl', {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (response.ok) {
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Envoyer ma demande →';
+      alert('Une erreur est survenue. Merci de réessayer ou de contacter romainbrubach@socratech.fr');
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Envoyer ma demande →';
+    alert('Une erreur réseau est survenue. Merci de réessayer.');
   }
-  const body = `Nom: ${name}%0AFonction: ${role}%0AOrganisation: ${org}%0AEmail: ${email}%0ATéléphone: ${document.getElementById('f-phone').value}%0AContexte: ${document.getElementById('f-context').value}%0AMessage: ${document.getElementById('f-message').value}`;
-  window.location.href = `mailto:romainbrubach@socratech.fr?subject=Demande RUN Risk - ${encodeURIComponent(org)}&body=${body}`;
-  d
-  document.getElementById('contact-form').reset();
-  alert('Votre message a été envoyé !');
-}
+});
 </script>
 </body>
 </html>
